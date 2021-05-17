@@ -1,0 +1,53 @@
+﻿@model Report
+@{
+    ViewData["Title"] = "报告";
+}
+
+<a class="btn btn-primary" style="margin-top: 20px;" href="javascript:history.go(-1)">返回首页</a>
+<div class="dropdown-divider"></div>
+<div class="row" style="margin-top: 2%">
+    @foreach (var item in Model.Fights.Where(item => item.Boss != 0))
+    {
+        <div class="card" style="width: 23%; margin: 1% 1% 1% 1%;">
+            <div class="card-body">
+                <h5 class="card-title">@item.Name</h5>
+                <h6 class="card-subtitle mb-2 text-muted">@ConvertTime(item.StartTimeUnix,item.EndTimeUnix)</h6>
+                <div class="dropdown-divider"></div>
+                <p class="card-text">开始时间: @UnixToDateTime(Model.StartUnix,item.StartTimeUnix)</p>
+                <p class="card-text">是否击杀: @item.Kill</p>
+                <p class="card-text">战斗进程: @(100-item.FightPercentage/100) %</p>
+            </div>
+        </div>
+    }
+</div>
+
+@functions
+{
+    /// <summary>
+    /// unix时间戳转换
+    /// </summary>
+    /// <param name="startTimeStamp"></param>
+    /// <param name="unixTimeStamp"></param>
+    /// <returns></returns>
+    private static DateTime UnixToDateTime(long startTimeStamp,long unixTimeStamp)
+    {
+#pragma warning disable 618
+        var startTime = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1)); // 当地时区
+#pragma warning restore 618
+        var dt = startTime.AddMilliseconds(startTimeStamp+unixTimeStamp);
+        return dt;
+    }
+    /// <summary>
+    /// 毫秒转换分钟
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="end"></param>
+    /// <returns></returns>
+    private static string ConvertTime(long start, long end)
+    {
+        var t = TimeSpan.FromMilliseconds(end-start);
+        var answer = $"{t.Minutes:D2}:{t.Seconds:D2}:{t.Milliseconds:D3}";
+        return answer;
+    }
+
+}

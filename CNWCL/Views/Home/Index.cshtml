@@ -1,0 +1,12 @@
+﻿@{
+    ViewData["Title"] = "首页";
+}
+<div  style="margin-top: 30%">
+    <form method="get" asp-action="Index" asp-controller="Report" autocomplete="off" onsubmit="displayBusyIndicator()">
+        <div class="form__group">
+            <input type="search" class="form__field" placeholder="请输入要分析的报告ID" value="@ViewData["reportId"]" name="reportId" id="reportId" />
+            <label for="reportId" class="form__label">报告ID</label>
+        </div>
+    </form>
+    <partial name="_LoadingPartial" />
+</div>
