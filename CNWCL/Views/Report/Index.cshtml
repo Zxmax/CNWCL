@@ -1,22 +1,43 @@
-﻿@model Report
+﻿@using CNWCL.Controllers
+@model Report
 @{
     ViewData["Title"] = "报告";
 }
 
 <a class="btn btn-primary" style="margin-top: 20px;" href="javascript:history.go(-1)">返回首页</a>
-<div class="dropdown-divider"></div>
+<hr style="background-color: black"/>
 <div class="row" style="margin-top: 2%">
     @foreach (var item in Model.Fights.Where(item => item.Boss != 0))
     {
-        <div class="card" style="width: 23%; margin: 1% 1% 1% 1%;">
+        var report = Model;
+        var color = !item.Kill ? "#add8e6" : "#7fff00";
+        <div class="card" style="width: 23%; margin: 1% 1% 1% 1%;background-color: @color">
             <div class="card-body">
                 <h5 class="card-title">@item.Name</h5>
                 <h6 class="card-subtitle mb-2 text-muted">@ConvertTime(item.StartTimeUnix,item.EndTimeUnix)</h6>
-                <div class="dropdown-divider"></div>
+                <hr style="background-color: black"/>
                 <p class="card-text">开始时间: @UnixToDateTime(Model.StartUnix,item.StartTimeUnix)</p>
-                <p class="card-text">是否击杀: @item.Kill</p>
-                <p class="card-text">战斗进程: @(100-item.FightPercentage/100) %</p>
+                @if (!item.Kill)
+                {
+                    var curPercent = 100 - item.FightPercentage / 100;
+                    var style = "";
+                    style = curPercent switch
+                    {
+                        > 90 => "background-color:darkorange",
+                        > 70 => "background-color:blueviolet",
+                        > 50 => "background-color:blue",
+                        > 20 => "background-color:green",
+                        > 0 => "background-color: white",
+                        _ => style
+                        };
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: @curPercent%;@style" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">@curPercent%</div>
+                    </div>
+                }
+                <hr style="background-color: black"/>
+                <a asp-action="AnalysisFightDetails" asp-route-fightId="@item.Id">战斗详情分析</a>
             </div>
+           
         </div>
     }
 </div>

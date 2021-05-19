@@ -10,7 +10,9 @@ namespace CNWCL.Models
     {
         [JsonProperty(PropertyName = "boss")]
         public int BossId { get; set; }
+        [JsonProperty(PropertyName = "phases")]
         public List<string> Phases { get; set; }
+        [JsonProperty(PropertyName = "intermissions")]
         public List<int> Intermissions { get; set; }
         public Phase(string json)
         {
@@ -24,9 +26,12 @@ namespace CNWCL.Models
                     Phases.Add(paraJson.ToString() ?? string.Empty);
                 }
                 Intermissions = new List<int>();
-                foreach (var paraJson in jsonObject["intermissions"])
+                if (jsonObject["intermissions"] != null)
                 {
-                    Intermissions.Add(JsonConvert.DeserializeObject<int>(paraJson.ToString() ?? string.Empty));
+                    foreach (var paraJson in jsonObject["intermissions"])
+                    {
+                        Intermissions.Add(JsonConvert.DeserializeObject<int>(paraJson.ToString() ?? string.Empty));
+                    }
                 }
                 BossId = jsonObject["boss"];
             }

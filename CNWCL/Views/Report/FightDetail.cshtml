@@ -1,0 +1,64 @@
+﻿@model List<Friend>
+@{
+    ViewData["Title"] = "详细报告";
+    Dictionary<string, string> cssTypeStyle = new()
+    {
+        { "Shaman", "color: #2459FF" },
+        { "Mage", "color: #5EBADF" },
+        { "Warlock", "color: #8578BC" },
+        { "Death Knight", "color: #B01F3C" },
+        { "Druid", "color: #FF7D0A" },
+        { "Priest", "color: #E5E8EC" },
+        { "Monk", "color: #288E73" },
+        { "Demon Hunter", "color: #922EBC" },
+        { "Paladin", "color: #E68CBA" },
+        { "Warrior", "color: #B38F6A" },
+        { "Rogue", "color: #E5DF65" },
+        { "Hunter", "color: #8EB667" }
+    }; //cssSty
+}
+
+<a class="btn btn-primary" style="margin-top: 20px;" href="javascript:history.go(-1)">返回上一页</a>
+<hr style="background-color: black" />
+<h4 style="margin-top: 2%">角色列表</h4>
+<div>
+    @if (Model == null)
+    {
+        <p>出错啦！</p>
+    }
+    else
+    {
+        <div class="row text-center">
+            @foreach (var friendly in Model)
+            {
+                <div class="col-md-3 card-container">
+                    <div class="card card-flip">
+                        <div class="front card-block">
+                            <div id="container">
+                                <div class="content">
+                                    <h5 style="@cssTypeStyle[friendly.Type]; display: inline-block; vertical-align: middle;">@friendly.Name</h5>
+                                </div>
+                            </div>
+                            <div>
+                            </div>
+                        </div>
+                        <div class="back card-block">
+                            <div id="container">
+                                <div class="content">
+                                    <br />
+                                    <p style="color: whitesmoke;">职业： @friendly.Type</p>
+                                    <p style="color: whitesmoke;">装等： @friendly.ItemLevel</p>
+                                    <p style="color: whitesmoke;">盟约： @friendly.Covenant</p>
+                                    <p style="color: whitesmoke;">服务器： @friendly.Server</p>
+                                    <a class="btn" style="color: darkcyan" asp-action="AnalysisFriendDetails">分析该角色</a>
+                                    <br />
+                                    <br />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
