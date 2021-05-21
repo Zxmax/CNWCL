@@ -37,7 +37,7 @@ namespace CNWCL.Models
                 Friends = new List<Friend>();
                 foreach (var paraJson in jsonObject["friendlies"])
                 {
-                    Friends.Add(new Friend(paraJson.ToString()));
+                    Friends.Add(new Friend(paraJson.ToString(),false));
                 }
                 Language = jsonObject["lang"];
                 Phases = new List<Phase>(); 
@@ -53,7 +53,7 @@ namespace CNWCL.Models
                 Console.WriteLine(e);
             }
         }
-        public Report(string json,bool isCustom)
+        public Report(string json,bool isCustom,bool moreDetail)
         {
             Console.Write(isCustom);
             try
@@ -73,7 +73,7 @@ namespace CNWCL.Models
                 var friendsJson = jsonObject["Friends"];
                 foreach (var paraJson in friendsJson)
                 {
-                    Friends.Add(new Friend(paraJson.ToString()));
+                        Friends.Add(new Friend(paraJson.ToString(),moreDetail));
                 }
                 Language = jsonObject["lang"];
                 Phases = new List<Phase>();

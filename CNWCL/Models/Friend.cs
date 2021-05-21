@@ -20,6 +20,7 @@ namespace CNWCL.Models
         public string Server { get; set; }
         //专精
         public string Spec { get; set; }
+        public int SpecId { get; set; }
         //盟约
         public string Covenant { get; set; }
         public int CovenantId { get; set; }
@@ -30,19 +31,30 @@ namespace CNWCL.Models
 
         [JsonProperty(PropertyName = "fights")]
         public List<FightDetail> Fights { get; set; } = new();
-        public Friend(string json)
+        public Friend(string json,bool moreDetail)
         {
             var jsonObject = JsonConvert.DeserializeObject<dynamic>(json);
             if (jsonObject == null) return;
             Id = jsonObject["id"];
-            Name = (string) jsonObject["name"];
-            Server= (string)jsonObject["server"];
-            Type = (string) jsonObject["type"] switch
+            Name = (string)jsonObject["name"];
+            Server = (string)jsonObject["server"];
+            Type = (string)jsonObject["type"] switch
             {
                 "DeathKnight" => "Death Knight",
                 "DemonHunter" => "Demon Hunter",
-                _ => (string) jsonObject["type"]
+                _ => (string)jsonObject["type"]
             };
+            if (jsonObject["Spec"] != null)
+                Spec = (string)jsonObject["Spec"];
+            if (jsonObject["SpecId"] != null)
+                SpecId = (int)jsonObject["SpecId"];
+            if (jsonObject["Covenant"] != null)
+                Covenant = (string)jsonObject["Covenant"];
+            if (jsonObject["CovenantId"] != null)
+                CovenantId = (int)jsonObject["CovenantId"];
+            
+            if (moreDetail)
+                Talents = JsonConvert.DeserializeObject<List<Talent>>(jsonObject["Talents"].ToString()); ;
             foreach (var fight in jsonObject["fights"])
             {
                 int id = fight["id"];

@@ -1,0 +1,131 @@
+﻿@model Tuple<Dictionary<string,int>,double,int, Dictionary<string, int>, double,List<string>>
+
+@*
+    casts,durationRole,sameTalentCovenant,castsModel,durationModel,indexCast
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+<li style="margin-top: 2%">当前在wcl前100中找到 @Model.Item3 个人与角色天赋盟约相同</li>
+<Table style="margin-top: 2%">
+    <TableHeader ThemeContrast="ThemeContrast.Dark">
+        <TableRow>
+            <TableHeaderCell>技能名称</TableHeaderCell>
+            <TableHeaderCell>你的释放数量</TableHeaderCell>
+            <TableHeaderCell>模板选手的释放数量</TableHeaderCell>
+            <TableHeaderCell>平均每分钟的释放数量</TableHeaderCell>
+            <TableHeaderCell>模板选手平均每分钟的释放数量</TableHeaderCell>
+            <TableHeaderCell>你该技能占总施法的占比</TableHeaderCell>
+            <TableHeaderCell>模板选手的占比</TableHeaderCell>
+            <TableHeaderCell>建议</TableHeaderCell>
+        </TableRow>
+    </TableHeader>
+    @foreach (var p in Model.Item6)
+    {
+        var sumRole = Model.Item1.Sum(keyValuePair => keyValuePair.Value);
+        var sumModel = Model.Item4.Sum(keyValuePair => keyValuePair.Value);
+        <TableRow>
+            <TableRowCell>@p</TableRowCell>
+
+            @if (Model.Item1.ContainsKey(p) && Model.Item4.ContainsKey(p))
+            {
+                var avgRole = Math.Round(Model.Item1[p] / Model.Item2 * 60, 2);
+                var avgModel = Math.Round(Model.Item4[p] / Model.Item5 * 60, 2);
+                var percentRole = Math.Round((double)Model.Item1[p] / sumRole, 2);
+                var percentModel = Math.Round((double)Model.Item4[p] / sumModel, 2);
+                var showTip = (percentModel - percentRole) switch
+                {
+                    > 0.05 => "需要多用",
+                    > 0.02 => "可以多用",
+                    < -0.05 => "需要少用",
+                    < -0.02 => "可以少用",
+                    _ => ""
+                };
+                <TableRowCell>@Model.Item1[p]</TableRowCell>
+                <TableRowCell>@Model.Item4[p]</TableRowCell>
+                <TableRowCell>@avgRole</TableRowCell>
+                <TableRowCell>@avgModel</TableRowCell>
+                <TableRowCell>@percentRole</TableRowCell>
+                <TableRowCell>@percentModel</TableRowCell>
+                if (showTip == "")
+                {
+                    <TableRowCell Style="background-color: azure;color: black">@showTip</TableRowCell>
+                }
+                else if (showTip == "需要多用")
+                {
+                    <TableRowCell Style="background-color: azure; color:mediumblue">@showTip</TableRowCell>
+                }
+                else if (showTip == "需要少用")
+                {
+                    <TableRowCell Style="background-color: azure; color: red">@showTip</TableRowCell>
+                }
+                else if (showTip == "可以多用")
+                {
+                    <TableRowCell Style="background-color: azure; color:lightblue">@showTip</TableRowCell>
+                }
+                else if (showTip == "可以少用")
+                {
+                    <TableRowCell Style="background-color: azure; color: lightcoral">@showTip</TableRowCell>
+                }
+            }
+            else if (!Model.Item1.ContainsKey(p))
+            {
+                var avgModel = Math.Round(Model.Item4[p] / Model.Item5 * 60, 2);
+                var percentModel = Math.Round((double)Model.Item4[p] / sumModel, 2);
+                var showTip = (percentModel - 0) switch
+                {
+                    > 0.05 => "需要多用",
+                    > 0.02 => "可以多用",
+                    _ => ""
+                };
+                <TableRowCell>0</TableRowCell>
+                <TableRowCell>@Model.Item4[p]</TableRowCell>
+                <TableRowCell>0</TableRowCell>
+                <TableRowCell>@avgModel</TableRowCell>
+                <TableRowCell>0</TableRowCell>
+                <TableRowCell>@percentModel</TableRowCell>
+                if (showTip == "")
+                {
+                    <TableRowCell Style="background-color: azure;color: black">@showTip</TableRowCell>
+                }
+                else if (showTip == "需要多用")
+                {
+                    <TableRowCell Style="background-color: azure; color:mediumblue">@showTip</TableRowCell>
+                }
+                else if (showTip == "可以多用")
+                {
+                    <TableRowCell Style="background-color: azure; color:dodgerblue">@showTip</TableRowCell>
+                }
+            }
+            else
+            {
+                var avgRole = Math.Round(Model.Item1[p] / Model.Item2 * 60, 2);
+                var percentRole = Math.Round((double)Model.Item1[p] / sumRole, 2);
+                var showTip = (0 - percentRole) switch
+                {
+                    > 0 => "",
+                    < -0.05 => "需要少用",
+                    < -0.02 => "可以少用",
+                    _ => ""
+                };
+                <TableRowCell>@Model.Item1[p]</TableRowCell>
+                <TableRowCell>0</TableRowCell>
+                <TableRowCell>@avgRole</TableRowCell>
+                <TableRowCell>0</TableRowCell>
+                <TableRowCell>@percentRole</TableRowCell>
+                <TableRowCell>0</TableRowCell>
+                if (showTip == "")
+                {
+                    <TableRowCell Style="background-color: azure;color: black">@showTip</TableRowCell>
+                }
+                else if (showTip == "需要少用")
+                {
+                    <TableRowCell Style="background-color: azure; color: red">@showTip</TableRowCell>
+                }
+                else if (showTip == "可以少用")
+                {
+                    <TableRowCell Style="background-color: azure; color: lightcoral">@showTip</TableRowCell>
+                }
+            }
+        </TableRow>
+    }
+</Table>
