@@ -6,7 +6,11 @@ function displayBusyIndicator() {
     document.getElementById("loading").style.display = "block";
 }
 
-
+function displayBusyIndicator_CastCompare() {
+    document.getElementById("Detail").style.display = "none";
+    document.getElementById("_LoadingPartial_fightDetail").style.display = "block";
+    document.getElementById("loading").style.display = "block";
+}
 
 $(document).ready(function () {
     var front = document.getElementsByClassName("front");

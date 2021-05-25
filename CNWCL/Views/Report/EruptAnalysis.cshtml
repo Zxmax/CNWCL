@@ -1,0 +1,55 @@
+﻿@using CNWCL.Services
+@model List<EruptTimeLine>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+*@
+@{
+
+}
+<a class="btn btn-primary" style="margin-top: 20px;" href="javascript:history.go(-2)">返回上一页</a>
+<hr style="background-color: black" />
+
+<table class="table" style="margin-top: 2%">
+    <thead theademeContrast="theademeContrast.Dark">
+        <tr>
+            <th>施法者</th>
+            <th>爆发种类</th>
+            <th>爆发名称</th>
+            <th>时间</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.SourceId</td>
+                @if (p.Type == 1)
+                {
+                    <td>输出技能</td>
+                }
+                else if (p.Type == 2)
+                {
+                    <td>治疗技能</td>
+                }
+                else if (p.Type == 3)
+                {
+                    <td>自保技能</td>
+                }
+                else if (p.Type == 4)
+                {
+                    <td>功能技能</td>
+                }
+                else if (p.Type == 5)
+                {
+                    <td>Boss技能</td>
+                }
+                <td>@p.Name</td>
+                <td>@p.Time</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+

@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CNWCL.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CNWCL
 {
@@ -29,9 +31,14 @@ namespace CNWCL
             {
                 options.IdleTimeout = TimeSpan.FromSeconds(120);
             });
-
+            // The TempData provider cookie is not essential. Make it essential
+            // so TempData is functional when tracking is disabled.
+            services.Configure<CookieTempDataProviderOptions>(options => {
+                options.Cookie.IsEssential = true;
+            });
             services.AddControllersWithViews()
                 .AddSessionStateTempDataProvider();
+            services.AddSingleton<ReportService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

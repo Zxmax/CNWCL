@@ -4,9 +4,9 @@
     ViewData["Title"] = "报告";
 }
 
-<a class="btn btn-primary" style="margin-top: 20px;" href="javascript:history.go(-1)">返回首页</a>
+<a class="btn btn-primary" style="margin-top: 20px;" href="javascript:history.go(-1)">返回上一页</a>
 <hr style="background-color: black"/>
-<div class="row" style="margin-top: 2%">
+<div class="row" id="Detail" style="margin-top: 2%">
     @foreach (var item in Model.Fights.Where(item => item.Boss != 0))
     {
         var report = Model;
@@ -35,11 +35,34 @@
                     </div>
                 }
                 <hr style="background-color: black"/>
-                <a asp-action="AnalysisFightDetails" asp-route-fightId="@item.Id">战斗详情分析</a>
+                @if (AlreadyMaintainFunc(item.ZoneId))
+                {
+                    <a asp-action="AnalysisFightDetails" asp-route-fightId="@item.Id" onclick="displayBusyIndicator_CastCompare()">角色技能分析</a>
+                }
+                else
+                {
+                    <p>该区域暂不支持分析角色技能分析，等待更新中</p>
+                }
+                <br/>
+                <br/>
+                @if (AlreadyMaintainFunc(item.ZoneId))
+                {
+                    <a asp-action="InputEruptMinCd" asp-route-curFightId="@item.Id" onclick="displayBusyIndicator_CastCompare()" >战斗爆发以及boss关键技能分析</a>
+                }
+                else
+                {
+                    <p>该区域暂不支持分析战斗技能时间轴导出，等待更新中</p>
+                }
             </div>
            
         </div>
     }
+</div>
+<div id="_LoadingPartial_fightDetail" style="margin-top: 30%;display: none">
+    <partial name="_LoadingPartial"/>
+    <br />
+    <br />
+    <p style="margin-left: 40%">此阶段时间有点久，请不要关闭页面>.&lt; </p>
 </div>
 
 @functions
@@ -71,4 +94,8 @@
         return answer;
     }
 
+    public bool AlreadyMaintainFunc(int zoneId)
+    {
+        return zoneId is 2296 or 2222;
+    }
 }

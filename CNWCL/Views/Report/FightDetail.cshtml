@@ -21,7 +21,7 @@
 <a class="btn btn-primary" style="margin-top: 20px;" href="javascript:history.go(-1)">返回上一页</a>
 <hr style="background-color: black" />
 <h4 style="margin-top: 2%">角色列表</h4>
-<div>
+<div id="Detail" style="display: block">
     @if (Model == null)
     {
         <p>出错啦！</p>
@@ -31,6 +31,8 @@
         <div class="row text-center">
             @foreach (var friendly in Model)
             {
+                if(friendly.Type=="Boss")
+                    continue;
                 <div class="col-md-3 card-container">
                     <div class="card card-flip">
                         <div class="front card-block">
@@ -46,11 +48,11 @@
                             <div id="container">
                                 <div class="content">
                                     <br />
-                                    <p style="color: whitesmoke;">职业： @friendly.Type</p>
+                                    <p style="color: whitesmoke;">职业： @friendly.Spec</p>
                                     <p style="color: whitesmoke;">装等： @friendly.ItemLevel</p>
                                     <p style="color: whitesmoke;">盟约： @friendly.Covenant</p>
                                     <p style="color: whitesmoke;">服务器： @friendly.Server</p>
-                                    <a class="btn" style="color: darkcyan" asp-action="AnalysisFriendDetails" asp-route-friendId="@friendly.Id">分析该角色</a>
+                                    <a class="btn" style="color: darkcyan" asp-action="AnalysisFriendDetails" asp-route-friendId="@friendly.Id" onclick="displayBusyIndicator_CastCompare()">分析该角色</a>
                                     <br />
                                     <br />
                                 </div>
@@ -61,4 +63,10 @@
             }
         </div>
     }
+</div>
+<div id="_LoadingPartial_fightDetail" style="margin-top: 30%;display: none">
+    <partial name="_LoadingPartial"/>
+    <br />
+    <br />
+    <p style="margin-left: 40%">此阶段时间有点久，请不要关闭页面>.&lt; </p>
 </div>

@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading;
 using System.Threading.Tasks;
 using CNWCL.Models;
+using CNWCL.Services;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -28,22 +26,20 @@ namespace CNWCL.Controllers
         private static readonly MongoClient Client = new("mongodb://localhost:27017");
         private readonly IMongoDatabase _database = Client.GetDatabase("WOW");
 
-        private readonly ILogger<ReportController> _logger;
-
-        public ReportController(ILogger<ReportController> logger, IConfiguration configuration)
+        public ReportController(IConfiguration configuration)
         {
-            _logger = logger;
             Configuration = configuration;
         }
 
         public IActionResult Index(string reportId)
         {
-            if(TempData[reportId] !=null)
+            if(ReportService.CurReportJson !=null)
             {
-                var reportJson = TempData[reportId].ToString();
+                var reportJson = ReportService.CurReportJson;
                 var report = new Report(reportJson, true,false);
-                TempData["curReportId"] = reportId;
-                TempData.Keep();
+                ReportService.CurReportId = reportId;
+                //TempData["curReportId"] = reportId;
+                //TempData.Keep();
                 return View("index", report);
             }
             else
@@ -51,13 +47,14 @@ namespace CNWCL.Controllers
                 var report = GetReportByReportId(reportId).Result;
                 if (report != null)
                 {
-                    TempData["curReportId"] = reportId;
-                    TempData[reportId] = JsonConvert.SerializeObject(report);
-                    TempData.Keep();
+                    //TempData["curReportId"] = reportId;
+                    //TempData[reportId] = JsonConvert.SerializeObject(report);
+                    //TempData.Keep();
+                    ReportService.CurReportId = reportId;
+                    ReportService.CurReportJson= JsonConvert.SerializeObject(report);
                     return View("index", report);
                 }
-
-                TempData["curReportId"] = "NULL";
+                
                 return Redirect("/");
             }
 
@@ -67,12 +64,51 @@ namespace CNWCL.Controllers
         {
             var reportJson = TempData[TempData["curReportId"].ToString() ?? string.Empty].ToString();
             var report = new Report(reportJson,true,false);
-            report.Friends = await GetFriendFullInfo(report,fightId);
+            var friends = await GetFriendFullInfo(report,fightId);
             
             TempData["curFightId"] = fightId;
             TempData[TempData["curReportId"].ToString() ?? string.Empty] = JsonConvert.SerializeObject(report);
             TempData.Keep();
-            return View("FightDetail", report.Friends);
+            return View("FightDetail", friends);
+        }
+        public IActionResult InputEruptMinCd(int curFightId)
+        {
+            TempData["curFightId"] = curFightId;
+            TempData.Keep();
+            return View("InputTime");
+        }
+
+        public IActionResult ReturnInputEruptMinCd()
+        {
+            TempData.Keep();
+            return View("InputTime");
+        }
+        public async Task<IActionResult> AnalysisErupt(int eruptCd)
+        {
+            var reportJson = TempData[TempData["curReportId"].ToString() ?? string.Empty].ToString();
+            var curFightId = (int)TempData["curFightId"] ;
+            var report = new Report(reportJson, true, false);
+            var enemyList = report.Enemies;
+            var enemies = (from enemy in enemyList let isInThisFight = enemy.Fights.Any(fight => fight.Id == curFightId) where isInThisFight select enemy).ToList();
+            var friendList = report.Friends;
+            var friends = (from friend in friendList let isInThisFight = friend.Fights.Any(fight => fight.Id == curFightId) where isInThisFight select friend).ToList();
+            friends = friends.Where(p => p.Type != "NPC" && p.Type != "Boss").ToList();
+            var eruptList = new List<EruptTimeLine>();
+            TempData.Keep();
+            foreach(var friendly in friends)
+            {
+                var castListTemp = await ReportService.GetCastList(report, curFightId, friendly);
+                var dicErupt = await ReportService.GetErupt(castListTemp, report.Fights.Find(p => p.Id == curFightId).StartTimeUnix, eruptCd);
+                eruptList.AddRange(dicErupt);
+            }
+            foreach(var enemy in enemies)
+            {
+                var castListTemp = await ReportService.GetEnemyCastList(report, curFightId, enemy);
+                var dicErupt = await ReportService.GetEnemyErupt(castListTemp, report.Fights.Find(p => p.Id == curFightId).StartTimeUnix);
+                eruptList.AddRange(dicErupt);
+            }
+            eruptList = eruptList.OrderBy(p => p.Time).ToList();
+            return View("EruptAnalysis", eruptList);
         }
 
         public async Task<IActionResult> AnalysisFriendDetailsAsync(int friendId)
@@ -81,7 +117,7 @@ namespace CNWCL.Controllers
             var curFightId = (int)TempData["curFightId"];
             var reportJson = TempData[curReportId].ToString();
             var report = new Report(reportJson, true,true);
-            TempData.Keep();
+            
             var curFight = report.Fights.FirstOrDefault(p => p.Id == curFightId);
             var curFriendly = report.Friends.FirstOrDefault(p => p.Id == friendId);
 
@@ -91,14 +127,17 @@ namespace CNWCL.Controllers
 
             var casts = await GetCastAsync(report, curFightId, friendId, true);
             var durationRole = (curFight.EndTimeUnix - curFight.StartTimeUnix) / 1000.0;
-            int sameTalentCovenant = 0;
+            int sameTalentCovenant;
             Dictionary<string, int> castsModel;
-            double durationModel = 0d;
+            double durationModel;
             (sameTalentCovenant, castsModel, durationModel) = await GetSameTalentCovenant(curFight.Boss, curFriendly);
             var indexCast = casts.Keys.ToList().Union(castsModel.Keys.ToList()).ToList();
+
+            TempData.Keep();
             return View("CastCompare", new Tuple<Dictionary<string,int>,double,int, Dictionary<string, int>, double,List<string>>(casts,durationRole,sameTalentCovenant,castsModel,durationModel,indexCast));
         }
 
+        
 
         #region 获取资源信息方法
 
@@ -126,12 +165,8 @@ namespace CNWCL.Controllers
 
         public async Task<List<Friend>> GetFriendFullInfo(Report report,int fightId)
         {
-            var friends = new List<Friend>();
-            foreach (var friend in report.Friends)
-            {
-                friends.AddRange(from fight in friend.Fights where fight.Id == fightId && friend.Type!="NPC" select friend);
-            }
-
+            var friends = (from friend in report.Friends let isInThisFight = friend.Fights.Any(fight => fight.Id == fightId) where isInThisFight select friend).ToList();
+            friends = friends.Where(p => p.Type != "NPC" && p.Type != "Boss").ToList();
             var startTime = report.Fights.Find(p => p.Id == fightId).StartTimeUnix;
             var endTime = report.Fights.Find(p => p.Id == fightId).EndTimeUnix;
 
@@ -163,12 +198,12 @@ namespace CNWCL.Controllers
                 var gearJson = p["gear"]?.ToString();
                 var talentJson = p["talents"]?.ToString();
                 var covenantIdJson = p["covenantID"]?.ToString();
-                var specID = p["specID"]?.ToString();
+                var specIdJson = p["specID"]?.ToString();
                 var sourceId = p["sourceID"]?.ToObject<int>();
                 var gears = JsonConvert.DeserializeObject<List<Gear>>(gearJson ?? string.Empty);
                 var talents = JsonConvert.DeserializeObject<List<Talent>>(talentJson ?? string.Empty);
                 var covenantId = JsonConvert.DeserializeObject<int>(covenantIdJson ?? string.Empty);
-                var specId = JsonConvert.DeserializeObject<int>(specID ?? string.Empty);
+                var specId = JsonConvert.DeserializeObject<int>(specIdJson ?? string.Empty);
                 friends.Find(friendly => friendly.Id == sourceId).Gears = gears;
                 friends.Find(friendly => friendly.Id == sourceId).Talents = talents;
                 friends.Find(friendly => friendly.Id == sourceId).CovenantId = covenantId;
@@ -333,7 +368,7 @@ namespace CNWCL.Controllers
         /// <returns></returns>
         public async Task<Dictionary<string, int>> GetCastAsync(Report report, int fightId, int friendId, bool isTrans)
         {
-            var startTime = report.Fights.FirstOrDefault(p => p.Id==fightId).StartTimeUnix;
+            var startTime = report.Fights.FirstOrDefault(p => p.Id == fightId).StartTimeUnix;
             var endTime = report.Fights.FirstOrDefault(p => p.Id == fightId).EndTimeUnix;
 
             HttpClient client = new HttpClient();
@@ -371,7 +406,7 @@ namespace CNWCL.Controllers
                 foreach (var cast in parsedObject["events"])
                 {
                     var castType = new Cast(cast.ToString());
-                    if(castType.Name==null)
+                    if (castType.Name == null)
                         continue;
                     if (dpsHpsCast.ContainsKey(castType.Name))
                     {
@@ -441,7 +476,7 @@ namespace CNWCL.Controllers
         /// </summary>
         /// <param name="talentList"></param>
         /// <returns></returns>
-        public  List<string> GetTalentByType(List<Talent> talentList)
+        public List<string> GetTalentByType(List<Talent> talentList)
         {
             var collection = _database.GetCollection<TalentClass>("wcl_talent");
             return talentList.Select(talent => talent.Id).Select(talentId => collection.Find(p => p.TalentId == talentId).FirstOrDefault()).Select(doc => doc.TalentNum.ToString()).ToList();
@@ -538,6 +573,5 @@ namespace CNWCL.Controllers
 
         }
         #endregion
-
     }
 }

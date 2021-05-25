@@ -9,6 +9,10 @@ namespace CNWCL.Models
         public int Boss { get; set; }
         [JsonProperty(PropertyName = "start_time")]
         public long StartTimeUnix { get; set; }
+        [JsonProperty(PropertyName = "zoneID")]
+        public int ZoneId { get; set; }
+        [JsonProperty(PropertyName = "zoneName")]
+        public string ZoneName { get; set; }
         [JsonProperty(PropertyName = "end_time")]
         public long EndTimeUnix { get; set; }
         public string Name { get; set; }

@@ -1,0 +1,25 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+
+}
+<a class="btn btn-primary" style="margin-top: 20px;" href="javascript:history.go(-1)">返回上一页</a>
+<hr style="background-color: black"/>
+<div id="Detail" style="margin-top: 15%">
+    <div>
+        <p style="font-size: xx-large;margin-left: 25%;font: 5ch droid sans mono, consolas, monospace;">请输入要统计的最短技能的cd(秒)</p>
+    </div>
+    <form method="get" asp-action="AnalysisErupt" autocomplete="off">
+        <div>
+            <input class="inputNumber" name="eruptCd" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" maxlength="3" value="@ViewData["eruptCd"]" />
+            <button class="btn-1" id="btn-1" style="margin-left: 41%;color:pink;" type="submit" onclick="displayBusyIndicator_CastCompare()">开始分析</button>
+        </div>
+    </form>
+</div>
+<div id="_LoadingPartial_fightDetail" style="margin-top: 30%;display: none">
+    <partial name="_LoadingPartial"/>
+    <br />
+    <br />
+    <p style="margin-left: 40%">此阶段时间有点久，请不要关闭页面>.&lt; </p>
+</div>
