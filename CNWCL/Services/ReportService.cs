@@ -21,7 +21,8 @@ namespace CNWCL.Services
         private static readonly IMongoDatabase _database = Client.GetDatabase("WOW");
 
         public static string CurReportId = null;
-        public static string CurReportJson = null;
+        public static int CurFightId;
+        public static Report CurReport = null;
 
         /// <summary>
         /// 获取单人施法列表

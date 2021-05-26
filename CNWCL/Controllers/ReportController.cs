@@ -33,68 +33,50 @@ namespace CNWCL.Controllers
 
         public IActionResult Index(string reportId)
         {
-            if(ReportService.CurReportJson !=null)
+            if(ReportService.CurReport !=null)
             {
-                var reportJson = ReportService.CurReportJson;
-                var report = new Report(reportJson, true,false);
+                var report = ReportService.CurReport;
                 ReportService.CurReportId = reportId;
-                //TempData["curReportId"] = reportId;
-                //TempData.Keep();
                 return View("index", report);
             }
             else
             {
                 var report = GetReportByReportId(reportId).Result;
-                if (report != null)
-                {
-                    //TempData["curReportId"] = reportId;
-                    //TempData[reportId] = JsonConvert.SerializeObject(report);
-                    //TempData.Keep();
-                    ReportService.CurReportId = reportId;
-                    ReportService.CurReportJson= JsonConvert.SerializeObject(report);
-                    return View("index", report);
-                }
-                
-                return Redirect("/");
+                if (report == null) return Redirect("/");
+                ReportService.CurReportId = reportId;
+                ReportService.CurReport= report;
+                return View("index", report);
+
             }
 
         }
 
         public async Task<IActionResult> AnalysisFightDetailsAsync(int fightId)
         {
-            var reportJson = TempData[TempData["curReportId"].ToString() ?? string.Empty].ToString();
-            var report = new Report(reportJson,true,false);
-            var friends = await GetFriendFullInfo(report,fightId);
+            var report = ReportService.CurReport;
+            report.Friends = await GetFriendFullInfo(report,fightId);
             
-            TempData["curFightId"] = fightId;
-            TempData[TempData["curReportId"].ToString() ?? string.Empty] = JsonConvert.SerializeObject(report);
-            TempData.Keep();
-            return View("FightDetail", friends);
-        }
-        public IActionResult InputEruptMinCd(int curFightId)
-        {
-            TempData["curFightId"] = curFightId;
-            TempData.Keep();
-            return View("InputTime");
+            ReportService.CurFightId = fightId;
+            return View("FightDetail", report.Friends);
         }
 
-        public IActionResult ReturnInputEruptMinCd()
+        public IActionResult InputEruptMinCd(int fightId)
         {
-            TempData.Keep();
+            ReportService.CurFightId  = fightId;
             return View("InputTime");
         }
+        
         public async Task<IActionResult> AnalysisErupt(int eruptCd)
         {
-            var reportJson = TempData[TempData["curReportId"].ToString() ?? string.Empty].ToString();
-            var curFightId = (int)TempData["curFightId"] ;
-            var report = new Report(reportJson, true, false);
+            var curFightId = ReportService.CurFightId;
+            var report =ReportService.CurReport; 
             var enemyList = report.Enemies;
             var enemies = (from enemy in enemyList let isInThisFight = enemy.Fights.Any(fight => fight.Id == curFightId) where isInThisFight select enemy).ToList();
             var friendList = report.Friends;
             var friends = (from friend in friendList let isInThisFight = friend.Fights.Any(fight => fight.Id == curFightId) where isInThisFight select friend).ToList();
             friends = friends.Where(p => p.Type != "NPC" && p.Type != "Boss").ToList();
             var eruptList = new List<EruptTimeLine>();
-            TempData.Keep();
+           
             foreach(var friendly in friends)
             {
                 var castListTemp = await ReportService.GetCastList(report, curFightId, friendly);
@@ -113,10 +95,9 @@ namespace CNWCL.Controllers
 
         public async Task<IActionResult> AnalysisFriendDetailsAsync(int friendId)
         {
-            var curReportId = (string)TempData["curReportId"];
-            var curFightId = (int)TempData["curFightId"];
-            var reportJson = TempData[curReportId].ToString();
-            var report = new Report(reportJson, true,true);
+            var curReportId = ReportService.CurReportId;
+            var curFightId = ReportService.CurFightId;
+            var report = ReportService.CurReport;
             
             var curFight = report.Fights.FirstOrDefault(p => p.Id == curFightId);
             var curFriendly = report.Friends.FirstOrDefault(p => p.Id == friendId);
@@ -132,8 +113,7 @@ namespace CNWCL.Controllers
             double durationModel;
             (sameTalentCovenant, castsModel, durationModel) = await GetSameTalentCovenant(curFight.Boss, curFriendly);
             var indexCast = casts.Keys.ToList().Union(castsModel.Keys.ToList()).ToList();
-
-            TempData.Keep();
+            
             return View("CastCompare", new Tuple<Dictionary<string,int>,double,int, Dictionary<string, int>, double,List<string>>(casts,durationRole,sameTalentCovenant,castsModel,durationModel,indexCast));
         }
 

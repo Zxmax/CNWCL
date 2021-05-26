@@ -5,7 +5,7 @@
 }
 
 <a class="btn btn-primary" style="margin-top: 20px;" href="javascript:history.go(-1)">返回上一页</a>
-<hr style="background-color: black"/>
+<hr style="background-color: black" />
 <div class="row" id="Detail" style="margin-top: 2%">
     @foreach (var item in Model.Fights.Where(item => item.Boss != 0))
     {
@@ -15,7 +15,7 @@
             <div class="card-body">
                 <h5 class="card-title">@item.Name</h5>
                 <h6 class="card-subtitle mb-2 text-muted">@ConvertTime(item.StartTimeUnix,item.EndTimeUnix)</h6>
-                <hr style="background-color: black"/>
+                <hr style="background-color: black" />
                 <p class="card-text">开始时间: @UnixToDateTime(Model.StartUnix,item.StartTimeUnix)</p>
                 @if (!item.Kill)
                 {
@@ -29,12 +29,16 @@
                         > 20 => "background-color:green",
                         > 0 => "background-color: white",
                         _ => style
-                        };
+                    };
                     <div class="progress">
                         <div class="progress-bar" role="progressbar" style="width: @curPercent%;@style" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">@curPercent%</div>
                     </div>
                 }
-                <hr style="background-color: black"/>
+                else
+                {
+                    <p class="card-text">结束时间: @UnixToDateTime(Model.StartUnix,item.EndTimeUnix)</p>
+                }
+                <hr style="background-color: black" />
                 @if (AlreadyMaintainFunc(item.ZoneId))
                 {
                     <a asp-action="AnalysisFightDetails" asp-route-fightId="@item.Id" onclick="displayBusyIndicator_CastCompare()">角色技能分析</a>
@@ -43,23 +47,23 @@
                 {
                     <p>该区域暂不支持分析角色技能分析，等待更新中</p>
                 }
-                <br/>
-                <br/>
+                <br />
+                <br />
                 @if (AlreadyMaintainFunc(item.ZoneId))
                 {
-                    <a asp-action="InputEruptMinCd" asp-route-curFightId="@item.Id" onclick="displayBusyIndicator_CastCompare()" >战斗爆发以及boss关键技能分析</a>
+                    <a asp-action="InputEruptMinCd" asp-route-fightId="@item.Id" onclick="displayBusyIndicator_CastCompare()">战斗爆发以及boss关键技能分析</a>
                 }
                 else
                 {
                     <p>该区域暂不支持分析战斗技能时间轴导出，等待更新中</p>
                 }
             </div>
-           
+
         </div>
     }
 </div>
 <div id="_LoadingPartial_fightDetail" style="margin-top: 30%;display: none">
-    <partial name="_LoadingPartial"/>
+    <partial name="_LoadingPartial" />
     <br />
     <br />
     <p style="margin-left: 40%">此阶段时间有点久，请不要关闭页面>.&lt; </p>
@@ -73,12 +77,12 @@
     /// <param name="startTimeStamp"></param>
     /// <param name="unixTimeStamp"></param>
     /// <returns></returns>
-    private static DateTime UnixToDateTime(long startTimeStamp,long unixTimeStamp)
+    private static DateTime UnixToDateTime(long startTimeStamp, long unixTimeStamp)
     {
 #pragma warning disable 618
         var startTime = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1)); // 当地时区
 #pragma warning restore 618
-        var dt = startTime.AddMilliseconds(startTimeStamp+unixTimeStamp);
+        var dt = startTime.AddMilliseconds(startTimeStamp + unixTimeStamp);
         return dt;
     }
     /// <summary>
@@ -89,7 +93,7 @@
     /// <returns></returns>
     private static string ConvertTime(long start, long end)
     {
-        var t = TimeSpan.FromMilliseconds(end-start);
+        var t = TimeSpan.FromMilliseconds(end - start);
         var answer = $"{t.Minutes:D2}:{t.Seconds:D2}:{t.Milliseconds:D3}";
         return answer;
     }
