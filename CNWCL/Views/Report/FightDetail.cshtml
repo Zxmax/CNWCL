@@ -31,7 +31,7 @@
         <div class="row text-center">
             @foreach (var friendly in Model)
             {
-                if(friendly.Type=="Boss")
+                if(friendly.Type is "Boss" or "Pet")
                     continue;
                 <div class="col-md-3 card-container">
                     <div class="card card-flip">

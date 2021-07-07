@@ -30,7 +30,7 @@ namespace CNWCL.Models
             Lfr = 1,//随机难度
             Temp = 2,//占位符
             Normal = 3,//普通
-            Hero = 4,//英雄
+            Heroic = 4,//英雄
             Mythic = 5//史诗
         }
     }

@@ -115,7 +115,7 @@ namespace CNWCL.Services
                 new MediaTypeWithQualityHeaderValue("application/json"));
 
             var urlParameters = UrlParameters +
-                                "&start=" + startTime + "&end=" + endTime + "&sourceid=" + friendly.Id;
+                                "&start=" + startTime + "&end=" + endTime + "&sourceid=" + friendly.Id+"&translate=true";
 
             // List data response.
             var response = await client.GetAsync(urlParameters);
@@ -179,14 +179,15 @@ namespace CNWCL.Services
             var dicErupt = new List<EruptTimeLine>();
             string spec = null;
             var type = 0;
-            foreach (var filter1 in allCasts.TakeWhile(_ => spec == null).Select(cast => Builders<Erupt>.Filter.Eq("CNName", cast.Name)))
+
+            foreach (var filter1 in allCasts.TakeWhile(_ => spec == null)
+                .Select(cast => Builders<Erupt>.Filter.Eq("CNName",
+                    cast.Name)))
             {
                 var results = await collection.Find(filter1).ToListAsync();
                 if (results.Count is <= 0 or > 1) continue;
                 spec = results.Find(p => p.Spec != null)?.Spec;
             }
-            if (spec == "discipline")
-                spec = "discipline";
             foreach (var cast in allCasts)
             {
                 var filter1 = Builders<Erupt>.Filter.Eq("CNName", cast.Name);
@@ -229,7 +230,6 @@ namespace CNWCL.Services
                 }
             }
             return dicErupt;
-
         }
         /// <summary>
         /// 获取敌对npc的关键技能
@@ -496,7 +496,7 @@ namespace CNWCL.Services
         /// <returns></returns>
         public static async Task<Tuple<int, Dictionary<string, int>, double>> GetSameTalentCovenant(int bossId, Friend friendly)
         {
-            var collectionBoss = Database.GetCollection<Boss>("wclBoss");
+            var collectionBoss = Database.GetCollection<Boss>("wow_encounter");
             var bossName = collectionBoss.Find(p => p.EncounterId == bossId).FirstOrDefault().EncounterName;
             if (friendly.Spec is "Restoration" or "Mistweaver" or "Holy" or "Discipline")
                 bossName = bossName.Replace(' ', '_') + "_HPS_talent";
