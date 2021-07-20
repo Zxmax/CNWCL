@@ -13,7 +13,7 @@
         var color = !item.Kill ? "#add8e6" : "#7fff00";
         <div class="card" style="width: 23%; margin: 1% 1% 1% 1%;background-color: @color">
             <div class="card-body">
-                <h5 class="card-title">@item.Name&nbsp;————&nbsp;<b>@item.Difficulty</b></h5>
+                <h5 class="card-title">@item.Name&nbsp;&nbsp;<b>@item.Difficulty</b></h5>
                 <h6 class="card-subtitle mb-2 text-muted">@ConvertTime(item.StartTimeUnix,item.EndTimeUnix)</h6>
                 <hr style="background-color: black" />
                 <p class="card-text">开始时间: @UnixToDateTime(Model.StartUnix,item.StartTimeUnix)</p>

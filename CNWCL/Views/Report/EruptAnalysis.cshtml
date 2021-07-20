@@ -9,47 +9,93 @@
 }
 <a class="btn btn-primary" style="margin-top: 20px;" href="javascript:history.go(-2)">返回上一页</a>
 <hr style="background-color: black" />
-
-<table class="table" style="margin-top: 2%">
+<input type="button" onclick="tableToExcel('tblExport', 'W3C Example Table')" value="Export to Excel">
+<table id="tblExport" class="table table-hover table-responsive  table-striped" style="margin-top: 2%">
     <thead theademeContrast="theademeContrast.Dark">
-        <tr>
-            <th>施法者</th>
-            <th>爆发种类</th>
-            <th>爆发名称</th>
-            <th>时间</th>
-        </tr>
+    <tr>
+        <th>施法者</th>
+        <th>爆发种类</th>
+        <th>爆发名称</th>
+        <th>时间</th>
+    </tr>
     </thead>
     <tbody>
-        @foreach (var p in Model)
-        {
-            <tr>
-                <td>@p.SourceId</td>
-                @if (p.Type == 1)
-                {
-                    <td>输出技能</td>
-                }
-                else if (p.Type == 2)
-                {
-                    <td>治疗技能</td>
-                }
-                else if (p.Type == 3)
-                {
-                    <td>自保技能</td>
-                }
-                else if (p.Type == 4)
-                {
-                    <td>功能技能</td>
-                }
-                else if (p.Type == 5)
-                {
-                    <td>Boss技能</td>
-                }
-                <td>@p.Name</td>
-                <td>@p.Time</td>
-            </tr>
-        }
+    @foreach (var p in Model)
+    {
+        <tr>
+            <td>@p.SourceId</td>
+            @if (p.Type == 1)
+            {
+                <td>输出技能</td>
+            }
+            else if (p.Type == 2)
+            {
+                <td>治疗技能</td>
+            }
+            else if (p.Type == 3)
+            {
+                <td>自保技能</td>
+            }
+            else if (p.Type == 4)
+            {
+                <td>功能技能</td>
+            }
+            else if (p.Type == 5)
+            {
+                <td>Boss技能</td>
+            }
+            <td>@p.Name</td>
+            <td>@p.Time</td>
+        </tr>
+    }
     </tbody>
 </table>
 
+@* method1 *@
+
+@section scripts{ 
+    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var tableToExcel = (function () {
+            var uri = 'data:application/vnd.ms-excel;base64,'
+                , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+                , base64 = function (s) { return window.btoa(unescape(encodeURIComponent(s))) }
+                , format = function (s, c) { return s.replace(/{(\w+)}/g, function (m, p) { return c[p]; }) }
+            return function (table, name) {
+                if (!table.nodeType) table = document.getElementById(table)
+                var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML }
+                window.location.href = uri + base64(format(template, ctx))
+            }
+        })()
+    </script>
+}
+@* method2 *@
+@*@section scripts{
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/TableExport/css/tableexport.min.css" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/Blob.js"></script>
+    <script src="~/js/xls.core.min.js"></script>
+    <script src="~/FileSaver.js/FileSaver.min.js"></script>
+    <script src="~/TableExport/js/tableexport.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var tables = $("#tblExport").tableExport({
+                bootstrap: true,
+                headings: true,
+                footers: true,
+                formats: ["xlsx"],
+                fileName: "timeline",
+                position: "end",
+                ignoreRows: null,
+                ignoreCols: null,
+                ignoreCSS: ".tableexport-ignore",
+                emptyCSS: ".tableexport-empty",
+                trimWhitespace: true
+            });
+        });
+    </script> 
+}*@
+@* method3 *@
 
 

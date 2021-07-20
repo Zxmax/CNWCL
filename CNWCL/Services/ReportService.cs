@@ -151,7 +151,7 @@ namespace CNWCL.Services
                 new MediaTypeWithQualityHeaderValue("application/json"));
 
             var urlParameters = UrlParameters +
-                                "&start=" + startTime + "&end=" + endTime + "&hostility=1&sourceid=" + enemy.Id;
+                                "&start=" + startTime + "&end=" + endTime + "&hostility=1&translate=true&sourceid=" + enemy.Id;
 
             // List data response.
             var response = await client.GetAsync(urlParameters);
@@ -239,7 +239,7 @@ namespace CNWCL.Services
         /// <returns></returns>
         public static async Task<List<EruptTimeLine>> GetEnemyErupt(List<Cast> allCasts, long startTimeUnix)
         {
-            var collection = Database.GetCollection<EnemyErupt>("wow_castle-nathria");
+            var collection = Database.GetCollection<EnemyErupt>("BossErupt_S28_SOD");
             var dicErupt = new List<EruptTimeLine>();
             foreach (var cast in allCasts)
             {
@@ -280,7 +280,8 @@ namespace CNWCL.Services
             client.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
             // List data response.
-            var response = await client.GetAsync(UrlParameters);  // Blocking call! Program will wait here until a response is received or a timeout occurs.
+            var urlParameters = UrlParameters;// + "&translate=true"
+            var response = await client.GetAsync(urlParameters);  // Blocking call! Program will wait here until a response is received or a timeout occurs.
             // Parse the response body.
             if (!response.IsSuccessStatusCode) return null;
             var dataObjects =
