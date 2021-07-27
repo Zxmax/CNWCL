@@ -1,4 +1,4 @@
-﻿@model Tuple<Dictionary<string,int>,double,int, Dictionary<string, int>, double,List<string>>
+﻿@model Tuple<Dictionary<string,int>,double,int, Dictionary<string, int>, double,List<string>,string>
 
 @*
     casts,durationRole,sameTalentCovenant,castsModel,durationModel,indexCast
@@ -7,7 +7,7 @@
 
 <a class="btn btn-primary" style="margin-top: 20px;" href="javascript:history.go(-1)">返回上一页</a>
 <hr style="background-color: black" />
-<li style="margin-top: 2%">当前在wcl前100中找到 @Model.Item3 个人与角色天赋盟约相同</li>
+<li style="margin-top: 2%">当前在wcl前100中找到 @Model.Item3 个人与角色天赋盟约相同,其中模板选手的战斗编号为：<a href="https://cn.warcraftlogs.com/reports/@Model.Item7">@Model.Item7</a></li>
 <table class="table" style="margin-top: 2%">
     <thead>
         <tr>

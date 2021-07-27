@@ -113,10 +113,11 @@ namespace CNWCL.Controllers
             int sameTalentCovenant;
             Dictionary<string, int> castsModel;
             double durationModel;
-            (sameTalentCovenant, castsModel, durationModel) = await ReportService.GetSameTalentCovenant(curFight.Boss, curFriendly);
+            string reportId;
+            (sameTalentCovenant, castsModel, durationModel,reportId) = await ReportService.GetSameTalentCovenant(curFight.Boss, curFriendly);
             var indexCast = casts.Keys.ToList().Union(castsModel.Keys.ToList()).ToList();
             
-            return View("CastCompare", new Tuple<Dictionary<string,int>,double,int, Dictionary<string, int>, double,List<string>>(casts,durationRole,sameTalentCovenant,castsModel,durationModel,indexCast));
+            return View("CastCompare", new Tuple<Dictionary<string,int>,double,int, Dictionary<string, int>, double,List<string>,string>(casts,durationRole,sameTalentCovenant,castsModel,durationModel,indexCast,reportId));
         }
 
         

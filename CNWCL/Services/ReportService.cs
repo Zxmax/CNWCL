@@ -495,14 +495,14 @@ namespace CNWCL.Services
         /// <param name="bossId"></param>
         /// <param name="friendly"></param>
         /// <returns></returns>
-        public static async Task<Tuple<int, Dictionary<string, int>, double>> GetSameTalentCovenant(int bossId, Friend friendly)
+        public static async Task<Tuple<int, Dictionary<string, int>, double,string>> GetSameTalentCovenant(int bossId, Friend friendly)
         {
             var collectionBoss = Database.GetCollection<Boss>("wow_encounter");
             var bossName = collectionBoss.Find(p => p.EncounterId == bossId).FirstOrDefault().EncounterName;
             if (friendly.Spec is "Restoration" or "Mistweaver" or "Holy" or "Discipline")
-                bossName = bossName.Replace(' ', '_') + "_HPS_talent";
+                bossName = bossName.Replace(' ', '_') + "_HPS_TOP100";
             else
-                bossName = bossName.Replace(' ', '_') + "_DPS_talent";
+                bossName = bossName.Replace(' ', '_') + "_DPS_TOP100";
             var sameTalentCovenantCollection = Database.GetCollection<Rank100>(bossName);
             var filter2 = Builders<Rank100>.Filter.Eq("spec_name", friendly.Spec);
             var filter3 = Builders<Rank100>.Filter.Eq("covenant_id", friendly.CovenantId);
@@ -522,7 +522,7 @@ namespace CNWCL.Services
             }
 
             if (results.Count == 0)
-                return new Tuple<int, Dictionary<string, int>, double>(0, new Dictionary<string, int>(), 0d);
+                return new Tuple<int, Dictionary<string, int>, double,string>(0, new Dictionary<string, int>(), 0d,"");
             var model = results.First();
             var report = await GetReportByReportId(model.ReportId);
             var fights = report.Fights;
@@ -531,7 +531,7 @@ namespace CNWCL.Services
             var fight = fights.Find(p => p.StartTimeUnix == model.Start);
 
             var castsModel = await GetCastAsync(report, fight.Id, friend.Id, true);
-            return new Tuple<int, Dictionary<string, int>, double>(results.Count, castsModel, model.Duration);
+            return new Tuple<int, Dictionary<string, int>, double,string>(results.Count, castsModel, model.Duration,model.ReportId);
         }
 
         /// <summary>

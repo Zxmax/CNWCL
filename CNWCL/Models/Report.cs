@@ -33,20 +33,25 @@ namespace CNWCL.Models
                 foreach (var paraJson in jsonObject["fights"])
                 {
                     Fights.Add(JsonConvert.DeserializeObject<Fight>(paraJson.ToString() ?? string.Empty));
+                    if (Fights[Fights.Count - 1].ZoneId == 0)
+                    {
+                        if (Fights[Fights.Count - 1].Boss is 2433 or 2429 or 2432 or 2434 or 2430 or 2436 or 2431 or 2422 or 2435)
+                            Fights[Fights.Count - 1].ZoneId = 2450;
+                    }
                 }
 
                 Friends = new List<Friend>();
                 foreach (var paraJson in jsonObject["friendlies"])
                 {
-                    Friends.Add(new Friend(paraJson.ToString(),false));
+                    Friends.Add(new Friend(paraJson.ToString(), false));
                 }
                 Enemies = new List<Enemy>();
                 foreach (var paraJson in jsonObject["enemies"])
                 {
-                    Enemies.Add(new Enemy(paraJson.ToString(),false));
+                    Enemies.Add(new Enemy(paraJson.ToString(), false));
                 }
                 Language = jsonObject["lang"];
-                Phases = new List<Phase>(); 
+                Phases = new List<Phase>();
                 foreach (var paraJson in jsonObject["phases"])
                 {
                     Phases.Add(new Phase(paraJson.ToString()));
@@ -59,7 +64,7 @@ namespace CNWCL.Models
                 Console.WriteLine(e);
             }
         }
-        public Report(string json,bool isCustom,bool moreDetail)
+        public Report(string json, bool isCustom, bool moreDetail)
         {
             Console.Write(isCustom);
             try
@@ -73,18 +78,23 @@ namespace CNWCL.Models
                 foreach (var paraJson in fightsJson)
                 {
                     Fights.Add(JsonConvert.DeserializeObject<Fight>(paraJson.ToString() ?? string.Empty));
+                    if (Fights[Fights.Count].ZoneId == 0)
+                    {
+                        if (Fights[Fights.Count].Boss is 2433 or 2429 or 2432 or 2434 or 2430 or 2436 or 2431 or 2422 or 2435)
+                            Fights[Fights.Count].ZoneId = 2450;
+                    }
                 }
 
                 Friends = new List<Friend>();
                 var friendsJson = jsonObject["Friends"];
                 foreach (var paraJson in friendsJson)
                 {
-                        Friends.Add(new Friend(paraJson.ToString(),moreDetail));
+                    Friends.Add(new Friend(paraJson.ToString(), moreDetail));
                 }
                 Enemies = new List<Enemy>();
                 foreach (var paraJson in jsonObject["Enemies"])
                 {
-                    Enemies.Add(new Enemy(paraJson.ToString(),true));
+                    Enemies.Add(new Enemy(paraJson.ToString(), true));
                 }
                 Language = jsonObject["lang"];
                 Phases = new List<Phase>();
@@ -101,5 +111,5 @@ namespace CNWCL.Models
             }
         }
     }
-    
+
 }
