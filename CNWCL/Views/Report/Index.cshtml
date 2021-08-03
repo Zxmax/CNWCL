@@ -39,6 +39,9 @@
                     <p class="card-text">结束时间: @UnixToDateTime(Model.StartUnix,item.EndTimeUnix)</p>
                 }
                 <hr style="background-color: black" />
+                <a asp-action="AnalysisWhoIsSavingTeammate" asp-route-fightId="@item.Id" onclick="displayBusyIndicator_CastCompare()">救人单抬小能手</a>
+                <br />
+                <br />
                 @if (AlreadyMaintainFunc(item.ZoneId, item.Boss))
                 {
                     <a asp-action="AnalysisFightDetails" asp-route-fightId="@item.Id" onclick="displayBusyIndicator_CastCompare()">角色技能分析</a>

@@ -1,0 +1,56 @@
+﻿@using CNWCL.Services
+@model List<LifeSavingData>
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+*@
+@{
+    ViewData["Title"] = "救人小能手";
+    Dictionary<string, string> cssTypeStyle = new()
+    {
+        { "Shaman", "color: #2459FF" },
+        { "Mage", "color: #5EBADF" },
+        { "Warlock", "color: #8578BC" },
+        { "Death Knight", "color: #B01F3C" },
+        { "Druid", "color: #FF7D0A" },
+        { "Priest", "color: #E5E8EC" },
+        { "Monk", "color: #288E73" },
+        { "Demon Hunter", "color: #922EBC" },
+        { "Paladin", "color: #E68CBA" },
+        { "Warrior", "color: #B38F6A" },
+        { "Rogue", "color: #E5DF65" },
+        { "Hunter", "color: #8EB667" }
+    }; //cssSty
+}
+<a class="btn btn-primary" style="margin-top: 20px;" href="javascript:history.go(-2)">返回上一页</a>
+<hr style="background-color: black" />
+
+<div class="row text-center">
+    @foreach (var lifeSavingData in Model)
+    {
+        <div class="col-md-3 card-container">
+            <div class="card card-flip">
+                <div class="front card-block">
+                    <div id="container">
+                        <div class="content">
+                            <h5 style="@cssTypeStyle[lifeSavingData.Type]; display: inline-block; vertical-align: middle;">@lifeSavingData.Name</h5>
+                            <h5 style="@cssTypeStyle[lifeSavingData.Type]; display: inline-block; vertical-align: middle;">救人次数：@lifeSavingData.HealingData.Count</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="back card-block">
+                    <div id="container">
+                        <div class="content">
+                            <br />
+                            @foreach (var keyValue in lifeSavingData.HealingData)
+                            {
+                                <p style="color: whitesmoke;">技能：@keyValue.Key 数值：@keyValue.Value</p>
+                                <br />
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -25,6 +25,7 @@ namespace CNWCL.Services
         public static string CurReportId = null;
         public static int CurFightId;
         public static Report CurReport = null;
+        public static List<Friend> CurFriendList = null;
 
         /// <summary>
         /// 获取单人施法列表
@@ -543,6 +544,57 @@ namespace CNWCL.Services
         {
             var collection = Database.GetCollection<TalentClass>("wcl_talent");
             return talentList.Select(talent => talent.Id).Select(talentId => collection.Find(p => p.TalentId == talentId).FirstOrDefault()).Select(doc => doc.TalentNum.ToString()).ToList();
+        }
+
+
+        public static async Task<List<LifeSavingData>> GetLifeSavingData(Report report, int fightId)
+        {
+            var healer = CurFriendList.Where(p => p.Spec is "Restoration" or "Mistweaver" or "Holy" or "Discipline");
+            var startTime = report.Fights.Find(p => p.Id == fightId).StartTimeUnix;
+            var endTime = report.Fights.Find(p => p.Id == fightId).EndTimeUnix;
+            var lifeSavingDataList = new List<LifeSavingData>();
+            foreach (var heal in healer)
+            {
+                var lifeSavingData = new LifeSavingData();
+                lifeSavingData.Id = heal.Id;
+                lifeSavingData.Name = heal.Name;
+                lifeSavingData.Type = heal.Type;
+                lifeSavingData.Spec = heal.Spec;
+                lifeSavingData.Covenant = heal.Covenant;
+
+                var client = new HttpClient();
+                var getReportsUrl = Url + "report/events/healing/" + report.ReportId;
+
+                client.BaseAddress = new Uri(getReportsUrl);
+
+                // Add an Accept header for JSON format.
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
+
+                var urlParameters = UrlParameters +
+                                    "&start=" + startTime + "&end=" + endTime + "&sourceid=" + heal.Id;
+
+                // List data response.
+                var response = await client.GetAsync(urlParameters);  // Blocking call! Program will wait here until a response is received or a timeout occurs.
+                                                                      // Parse the response body.
+                if (!response.IsSuccessStatusCode) return null;
+
+                var fightJson =
+                    await response.Content
+                        .ReadAsStringAsync(); //Make sure to add a reference to System.Net.Http.Formatting.dll
+                var parsedObjectItemLevel = JObject.Parse(fightJson);
+                foreach (var p in parsedObjectItemLevel["events"])
+                {
+                    if (p["type"].ToString() != "heal") continue;
+                    var amount = p["amount"].ToObject<double>();
+                    var hitPoints = p["hitPoints"].ToObject<double>();
+                    var maxHitPoints = p["maxHitPoints"].ToObject<double>();
+                    if (amount < 5000 || (hitPoints-amount) / maxHitPoints > 0.35) continue;
+                    lifeSavingData.HealingData.Add(new KeyValuePair<string, double>(p["ability"]["name"].ToString(), amount));
+                }
+                lifeSavingDataList.Add(lifeSavingData);
+            }
+            return lifeSavingDataList;
         }
 
         #endregion

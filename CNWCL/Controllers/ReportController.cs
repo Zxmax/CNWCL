@@ -47,10 +47,10 @@ namespace CNWCL.Controllers
         public async Task<IActionResult> AnalysisFightDetailsAsync(int fightId)
         {
             var report = ReportService.CurReport;
-            report.Friends = await ReportService.GetFriendFullInfo(report,fightId);
+            ReportService.CurFriendList = await ReportService.GetFriendFullInfo(report,fightId);
             
             ReportService.CurFightId = fightId;
-            return View("FightDetail", report.Friends);
+            return View("FightDetail", ReportService.CurFriendList);
         }
 
         public IActionResult InputEruptMinCd(int fightId)
@@ -120,7 +120,14 @@ namespace CNWCL.Controllers
             return View("CastCompare", new Tuple<Dictionary<string,int>,double,int, Dictionary<string, int>, double,List<string>,string>(casts,durationRole,sameTalentCovenant,castsModel,durationModel,indexCast,reportId));
         }
 
-        
+        public async Task<IActionResult> AnalysisWhoIsSavingTeammateAsync(int fightId)
+        {
+            var report = ReportService.CurReport;
+            ReportService.CurFriendList = await ReportService.GetFriendFullInfo(report, fightId);
+            var lifeSavingDataList = await ReportService.GetLifeSavingData(report,fightId);
+
+            return View("LifeSavingData", lifeSavingDataList);
+        }
 
     }
 }
